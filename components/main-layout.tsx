@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BarChart3, ChevronDown, LayoutDashboard, LogOut, Menu, Settings, User } from "lucide-react"
+import { BarChart3, ChevronDown, LayoutDashboard, LogOut, Menu, Settings } from "lucide-react"
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -57,7 +57,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                 />
               </svg>
             </div>
-            <span className="text-lg font-semibold">PDI</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold">PDI</span>
+              <span className="text-xs text-muted-foreground">Grupo 93</span>
+            </div>
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="md:hidden">
             <Menu className="h-5 w-5" />
@@ -104,10 +107,6 @@ export function MainLayout({ children }: MainLayoutProps) {
               <DropdownMenuContent align="end" className="w-56 rounded-xl">
                 <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/config">
                     <Settings className="mr-2 h-4 w-4" />

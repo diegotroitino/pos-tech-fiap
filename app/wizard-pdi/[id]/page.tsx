@@ -15,7 +15,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { CalendarIcon, Check, ChevronLeft, ChevronRight, Code, FileText, Lightbulb, Presentation } from "lucide-react"
+import {
+  CalendarIcon,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  FileText,
+  Lightbulb,
+  Presentation,
+  Sparkles,
+} from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 
@@ -183,6 +193,23 @@ export default function WizardPDI({ params }: WizardPDIProps) {
 
         {step === 2 && (
           <div className="space-y-6">
+            <Card className="rounded-2xl shadow-md border-primary/20 bg-gradient-to-r from-primary/5 to-purple/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-primary/10 p-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-primary">Recomendações Personalizadas por IA</h3>
+                    <p className="text-sm text-muted-foreground">
+                      As sugestões abaixo foram geradas especificamente para o perfil e objetivos do colaborador,
+                      considerando suas aspirações e contexto profissional.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <h2 className="text-xl font-semibold">Recomendações</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {recommendations.map((recommendation) => (

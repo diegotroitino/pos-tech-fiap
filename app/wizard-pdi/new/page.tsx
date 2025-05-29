@@ -15,7 +15,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { CalendarIcon, Check, ChevronLeft, ChevronRight, Code, FileText, Lightbulb, Presentation } from "lucide-react"
+import {
+  CalendarIcon,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  FileText,
+  Lightbulb,
+  Presentation,
+  Sparkles,
+} from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 import { useCollaborators } from "@/contexts/collaborators-context"
@@ -33,8 +43,11 @@ export default function NewCollaboratorWizardPDI() {
     const storedData = localStorage.getItem("newCollaborator")
     if (storedData) {
       setNewCollaboratorData(JSON.parse(storedData))
+    } else {
+      // Se não há dados, redirecionar para o formulário de aspirações
+      router.push("/onboarding/aspirations?newCollaborator=true")
     }
-  }, [])
+  }, [router])
 
   // Dados iniciais para um novo colaborador
   const skills = [
@@ -103,11 +116,12 @@ export default function NewCollaboratorWizardPDI() {
     } else {
       if (newCollaboratorData) {
         // Adicionar o novo colaborador
-        addCollaborator({
+        const newId = addCollaborator({
           nome: newCollaboratorData.nome,
           cargo: newCollaboratorData.cargo,
           pdi: 0, // Inicialmente 0%
           status: "amber", // Status inicial
+          aiPersonalization: newCollaboratorData.aiPersonalization || "",
         })
 
         // Limpar os dados do localStorage
@@ -115,10 +129,11 @@ export default function NewCollaboratorWizardPDI() {
 
         toast({
           title: "Colaborador adicionado com sucesso",
-          description: "O novo colaborador e seu PDI foram criados",
+          description: `${newCollaboratorData.nome} foi adicionado e seu PDI foi criado`,
         })
 
-        router.push("/dashboard")
+        // Redirecionar para o perfil do novo colaborador
+        router.push(`/profile/${newId}`)
       } else {
         toast({
           title: "Erro",
@@ -132,21 +147,36 @@ export default function NewCollaboratorWizardPDI() {
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1)
+    } else {
+      // Voltar para o formulário de aspirações
+      router.push("/onboarding/aspirations?newCollaborator=true")
     }
+  }
+
+  // Se não há dados do colaborador, mostrar loading
+  if (!newCollaboratorData) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Carregando dados do colaborador...</p>
+          </div>
+        </div>
+      </MainLayout>
+    )
   }
 
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">
-            Configurar PDI - {newCollaboratorData ? newCollaboratorData.nome : "Novo Colaborador"}
-          </h1>
+          <h1 className="text-2xl font-semibold">Configurar PDI - {newCollaboratorData.nome}</h1>
           <div className="flex items-center space-x-2">
             <Button variant="outline" className="rounded-xl" asChild>
               <Link href="/dashboard">Cancelar</Link>
             </Button>
-            <Button variant="outline" className="rounded-xl" onClick={handleBack} disabled={step === 1}>
+            <Button variant="outline" className="rounded-xl" onClick={handleBack}>
               <ChevronLeft className="mr-2 h-4 w-4" />
               Voltar
             </Button>
@@ -211,6 +241,23 @@ export default function NewCollaboratorWizardPDI() {
 
         {step === 2 && (
           <div className="space-y-6">
+            <Card className="rounded-2xl shadow-md border-primary/20 bg-gradient-to-r from-primary/5 to-purple/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-primary/10 p-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-primary">Recomendações Personalizadas por IA</h3>
+                    <p className="text-sm text-muted-foreground">
+                      As sugestões abaixo foram geradas especificamente para o perfil e objetivos de{" "}
+                      {newCollaboratorData.nome}, considerando suas aspirações e contexto profissional.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <h2 className="text-xl font-semibold">Recomendações</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {recommendations.map((recommendation) => (
@@ -251,6 +298,31 @@ export default function NewCollaboratorWizardPDI() {
         {step === 3 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Resumo do PDI</h2>
+
+            <Card className="rounded-2xl shadow-md">
+              <CardHeader>
+                <CardTitle className="text-lg">Informações do Colaborador</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Nome</Label>
+                    <p className="font-medium">{newCollaboratorData.nome}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Cargo</Label>
+                    <p className="font-medium">{newCollaboratorData.cargo}</p>
+                  </div>
+                  {newCollaboratorData.aiPersonalization && (
+                    <div className="md:col-span-2">
+                      <Label className="text-sm font-medium text-muted-foreground">Contexto para IA</Label>
+                      <p className="text-sm">{newCollaboratorData.aiPersonalization}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="rounded-2xl shadow-md">
               <CardHeader>
                 <CardTitle className="text-lg">Configurações do PDI</CardTitle>

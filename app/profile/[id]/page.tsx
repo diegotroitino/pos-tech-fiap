@@ -26,6 +26,9 @@ export default function Profile({ params }: ProfileProps) {
   const [activeTab, setActiveTab] = useState("resumo")
   const { collaborators } = useCollaborators()
 
+  // Adicionar no início do componente, após os hooks existentes:
+  const [isLoading, setIsLoading] = useState(true)
+
   // Encontrar o colaborador pelo ID
   const collaboratorId = Number.parseInt(params.id)
   const collaborator = collaborators.find((c) => c.id === collaboratorId)
@@ -118,7 +121,9 @@ export default function Profile({ params }: ProfileProps) {
     { id: 4, title: "Reuniões 1:1", value: 8, icon: Calendar, change: "Mensal" },
   ]
 
+  // Modificar o useEffect existente para incluir loading:
   useEffect(() => {
+    setIsLoading(true)
     // Verificar se há um hash na URL e ativar a tab correspondente
     if (typeof window !== "undefined") {
       const hash = window.location.hash.replace("#", "")
@@ -126,18 +131,46 @@ export default function Profile({ params }: ProfileProps) {
         setActiveTab(hash)
       }
     }
-  }, [])
 
-  // Se o colaborador não for encontrado, exibir mensagem
+    // Simular um pequeno delay para permitir que o contexto seja atualizado
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [params.id])
+
+  // Substituir a verificação do colaborador por:
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Carregando perfil do colaborador...</p>
+          </div>
+        </div>
+      </MainLayout>
+    )
+  }
+
   if (!collaborator) {
     return (
       <MainLayout>
         <div className="flex flex-col items-center justify-center h-full p-8">
           <h1 className="text-2xl font-semibold mb-4">Colaborador não encontrado</h1>
-          <p className="text-muted-foreground mb-6">O colaborador com ID {params.id} não foi encontrado.</p>
-          <Button asChild className="rounded-xl">
-            <Link href="/dashboard">Voltar para o Dashboard</Link>
-          </Button>
+          <p className="text-muted-foreground mb-6">
+            O colaborador com ID {params.id} não foi encontrado. Ele pode ter sido removido ou o ID pode estar
+            incorreto.
+          </p>
+          <div className="flex gap-4">
+            <Button asChild className="rounded-xl" variant="outline">
+              <Link href="/dashboard">Voltar para o Dashboard</Link>
+            </Button>
+            <Button className="rounded-xl" onClick={() => window.location.reload()}>
+              Recarregar Página
+            </Button>
+          </div>
         </div>
       </MainLayout>
     )
