@@ -8,8 +8,8 @@ import { CollaboratorsProvider } from "@/contexts/collaborators-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PDI Personalizado - Grupo 93",
-  description: "Plataforma de Desenvolvimento Individual Personalizado - Grupo 93",
+  title: "PDI Personalizado",
+  description: "Plataforma de Desenvolvimento Individual Personalizado",
     generator: 'v0.dev'
 }
 
